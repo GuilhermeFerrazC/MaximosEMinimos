@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Problema de Otimização</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1f1f1f;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #61dafb;
+            margin-bottom: 20px;
+        }
+
+        label {
+            color: #ccc;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input {
+            width: 60px;
+            padding: 8px;
+            margin: 8px;
+            border: 1px solid #61dafb;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        canvas {
+            width: 300px;
+            height: 200px;
+            border: 1px solid #61dafb;
+            margin-top: 20px;
+        }
+
+        .menu-box {
+            background-color: #333;
+            padding: 10px;
+            border: 1px solid #61dafb;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #007BFF;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+
+        #equation, #resultado {
+            margin-top: 20px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Problema de Otimização</h1>
+    <label for="distancia_input">Insira a distância D-B (até 8):</label>
+    <input type="number" id="distancia_input" max="8" onchange="calcular()">
+    <button onclick="calcular()">Calcular</button>
+    <p id="equation"></p>
+    <p id="resultado"></p>
+
+    <canvas id="myChart"></canvas>
+
+    <div class="menu-box">
+        <a href="menu.html">Voltar para o menu</a>
+    </div>
+
+    <script>
+        var myChart;
+
+        function desenharGrafico(distancia, area) {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            if (myChart) {
+                myChart.destroy();
+            }
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: distancia,
+                    datasets: [{
+                        label: 'Área Máxima',
+                        data: area,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function calcular() {
+            var distancia_DB = parseFloat(document.getElementById('distancia_input').value);
+            if (isNaN(distancia_DB) || distancia_DB <= 0 || distancia_DB > 8) {
+                document.getElementById('resultado').innerHTML = 'Insira um número válido entre 0 e 8.';
+                return;
+            }
+
+            var equation = 'Área Máxima = -(3/4) * ' + distancia_DB + '^2 + 6 * ' + distancia_DB;
+            document.getElementById('equation').innerHTML = equation;
+
+            var area_maxima = -(3/4) * Math.pow(distancia_DB, 2) + 6 * distancia_DB;
+            var resultText = 'A área máxima é: ' + area_maxima.toFixed(2);
+
+            var distancia = [];
+            var area = [];
+            for (var d = 0; d <= distancia_DB; d += 0.5) {
+                var area_calculada = -(3/4) * Math.pow(d, 2) + 6 * d;
+                distancia.push(d);
+                area.push(area_calculada);
+            }
+
+            desenharGrafico(distancia, area);
+            document.getElementById('resultado').innerHTML = resultText;
+        }
+    </script>
+</body>
+</html>

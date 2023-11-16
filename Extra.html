@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Calculadora de Volume para Círculo com Gráfico</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #333; /* Alterada para uma cor mais escura */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #container {
+      text-align: center;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 8px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      margin: 10px 0;
+      color: #333;
+    }
+
+    canvas {
+      margin-top: 20px;
+      width: 80vw;
+      max-height: 300px;
+      height: auto;
+    }
+
+    /* Adição de estilos para o botão de menu */
+    #menuButton {
+      padding: 8px 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px; /* Adicionado espaçamento acima do botão */
+    }
+
+    /* Adição de estilos para o botão de menu no hover */
+    #menuButton:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="container">
+    <h1>Calculadora de Volume para Círculo com Gráfico</h1>
+    <label for="inputRadius">Raio do círculo (m):</label>
+    <input type="number" id="inputRadius" step="0.01" min="0">
+    <br>
+    <button onclick="calculateVolume()">Calcular</button>
+    <p>Maior volume de caixa possível: <span id="result"></span></p>
+    <p>Valor do raio recortado que resulta no maior volume: <span id="maxX"></span></p>
+    <canvas id="myChart"></canvas>
+
+    <!-- Movendo o botão para baixo do conteúdo -->
+    <button id="menuButton" onclick="goToMenu()">Voltar para o menu</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function calculateVolume() {
+      const radius = parseFloat(document.getElementById('inputRadius').value);
+
+      if (radius <= 0 || isNaN(radius)) {
+        alert('Por favor, insira um valor válido para o raio do círculo.');
+        return;
+      }
+
+      const step = 0.001;
+      const xValues = [];
+      const volumeValues = [];
+
+      let maxX = 0;
+      let maxY = 0;
+
+      for (let x = 0; x <= radius; x += step) {
+        const volume = Math.PI * Math.pow(x, 2) * (radius - x);
+        xValues.push(x.toFixed(4));
+        volumeValues.push(volume.toFixed(4));
+
+        if (volume > maxY) {
+          maxY = volume;
+          maxX = x;
+        }
+      }
+
+      const resultElement = document.getElementById('result');
+      resultElement.textContent = maxY.toFixed(4) + " m³";
+
+      const maxXElement = document.getElementById('maxX');
+      maxXElement.textContent = maxX.toFixed(4) + " m";
+
+      renderChart(xValues, volumeValues, maxX);
+    }
+
+    function renderChart(xValues, volumeValues, maxX) {
+      const ctx = document.getElementById('myChart').getContext('2d');
+      const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: xValues,
+          datasets: [{
+            label: 'Volume',
+            data: volumeValues,
+            backgroundColor: 'rgba(0, 123, 255, 0.2)',
+            borderColor: 'rgba(0, 123, 255, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Valor do raio recortado (m)'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Volume (m³)'
+              }
+            }
+          },
+          plugins: {
+            annotation: {
+              annotations: {
+                line: {
+                  type: 'line',
+                  mode: 'vertical',
+                  scaleID: 'x',
+                  value: maxX,
+                  borderColor: 'red',
+                  borderWidth: 1,
+                  label: {
+                    content: 'Máximo',
+                    enabled: true,
+                    position: 'top'
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const yMax = Math.max(...volumeValues);
+      const index = volumeValues.indexOf(yMax.toFixed(4));
+      const meta = myChart.getDatasetMeta(0);
+      const x = meta.data[index].x;
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'red';
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, ctx.canvas.height);
+      ctx.stroke();
+    }
+
+    function goToMenu() {
+      window.location.href = "menu.html";
+    }
+  </script>
+</body>
+
+</html>

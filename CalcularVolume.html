@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calculadora de Volume para Caixa com Gráfico</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #222;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #container {
+      text-align: center;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      width: 70vw;
+    }
+
+    h1 {
+      color: #fff;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #fff;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      color: #000; /* Alterando a cor do texto do input */
+    }
+
+    button {
+      padding: 8px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      margin: 10px 0;
+      color: #fff;
+    }
+
+    canvas {
+      margin-top: 20px;
+      width: 80vw;
+      max-height: 300px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <h1>Calculadora de Volume para Caixa com Gráfico</h1>
+  <label for="inputSize">Tamanho do quadrado original (m²):</label>
+  <input type="number" id="inputSize" step="0.01" min="0">
+  <br>
+  <button onclick="calculateVolume()">Calcular</button>
+  <p>Maior volume de caixa possível: <span id="result"></span></p>
+  <p>Tamanho do quadrado recortado que resulta no maior volume: <span id="maxX"></span></p>
+  <canvas id="myChart"></canvas>
+  
+  <!-- Botão para retornar para a página "menu.html" -->
+  <a href="menu.html" style="text-decoration: none; display: block; margin-top: 20px;">
+    <button style="padding: 8px 20px; background-color: #007BFF; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+      Voltar para o menu
+    </button>
+  </a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function calculateVolume() {
+    const size = parseFloat(document.getElementById('inputSize').value);
+
+    if (size <= 0 || isNaN(size)) {
+      alert('Por favor, insira um valor válido para o tamanho do quadrado original.');
+      return;
+    }
+
+    const step = 0.001; // Definindo o passo para maior precisão
+    const xValues = [];
+    const volumeValues = [];
+
+    let maxX = 0;
+    let maxY = 0;
+
+    for (let x = 0; x <= size / 2; x += step) {
+      const volume = x * Math.pow((size - 2 * x), 2);
+      xValues.push(x.toFixed(4));
+      volumeValues.push(volume.toFixed(4));
+
+      if (volume > maxY) {
+        maxY = volume;
+        maxX = x;
+      }
+    }
+
+    const resultElement = document.getElementById('result');
+    resultElement.textContent = maxY.toFixed(4) + " m³";
+
+    const maxXElement = document.getElementById('maxX');
+    maxXElement.textContent = maxX.toFixed(4) + " m";
+    
+    renderChart(xValues, volumeValues, maxX);
+  }
+
+  function renderChart(xValues, volumeValues, maxX) {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: xValues,
+        datasets: [{
+          label: 'Volume',
+          data: volumeValues,
+          backgroundColor: 'rgba(0, 123, 255, 0.2)',
+          borderColor: 'rgba(0, 123, 255, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Tamanho do quadrado recortado (m)',
+              color: '#fff' // Alterando a cor do título do eixo X
+            },
+            ticks: {
+              color: '#fff' // Alterando a cor dos números do eixo X
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Volume (m³)',
+              color: '#fff' // Alterando a cor do título do eixo Y
+            },
+            ticks: {
+              color: '#fff' // Alterando a cor dos números do eixo Y
+            }
+          }
+        },
+        plugins: {
+          annotation: {
+            annotations: {
+              line: {
+                type: 'line',
+                mode: 'vertical',
+                scaleID: 'x',
+                value: maxX,
+                borderColor: 'red',
+                borderWidth: 1,
+                label: {
+                  content: 'Máximo',
+                  enabled: true,
+                  position: 'top',
+                  backgroundColor: 'red' // Alterando a cor do fundo do rótulo
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+</body>
+</html>
